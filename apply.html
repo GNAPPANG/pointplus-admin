@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Check</title>
+
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/login.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="dist/css/adminlte.min.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <style>
+    .can-click {
+      cursor: pointer;
+    }
+
+    #store {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #store td,
+    #store th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    #store tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    #store tr:nth-child(odd) {
+      background-color: #ffffff;
+    }
+
+    #store tr:hover {
+      background-color: #ddd;
+    }
+
+    #store th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #25649f;
+      color: white;
+    }
+  </style>
+
+</head>
+
+<body onload="initPage()">
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.0/firebase-firestore.js"></script>
+  <script src="login.js"></script>
+
+  <section class="content">
+    <div class="row">
+      <div class="col-md-3">
+        <center><img src="image/logo.png" alt="" width="150" height="150 "></center>
+
+        <div class="card">
+
+          <div class="card-body p-0">
+            <ul class="nav nav-pills flex-column">
+              <li class="nav-item active">
+                <a href="apply.html" class="nav-link">
+                  <button type="button" class="btn btn-block bg-gradient-warning btn-lg">บัญชีรอการตรวจสอบ</button>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="store.html" class="nav-link">
+                  <button type="button" class="btn btn-block bg-gradient-warning btn-lg">ข้อมูลบัญชีร้านค้า</button>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="user.html" class="nav-link">
+                  <button type="button" class="btn btn-block bg-gradient-warning btn-lg">ข้อมูลบัญชีผู้ใช้</button>
+                </a>
+              </li>
+
+
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+      <div class="col-md-9">
+        <div class="card card-primary card-outline">
+          <div class="card-header">
+
+
+            <div class="card-tools">
+              <div class="input-group input-group-sm">
+                <button onclick="logout()" type="button" class="btn btn-block btn-outline-danger btn-lg">Logout</button>
+
+              </div>
+            </div>
+            <!-- /.card-tools -->
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body p-0">
+            <div class="mailbox-controls">
+
+
+              <div class="card">
+
+                <div class="card-body p-0">
+                  <table id="store" border=1 bordercolor="#FFCCA1" align="center" width="100%" height="50%">
+                    <thead>
+                      <tr>
+                        <th>
+                          <center>Store</center>
+                        </th>
+                        <th>
+                          <center>Namestore</center>
+                        </th>
+                        <th>
+                          <center>Address</center>
+                        </th>
+                        <th>
+                          <center>Tel</center>
+                        </th>
+                        <th>
+                          <center>E-mail</center>
+                        </th>
+                        <th>
+                          <center>Status</center>
+                        </th>
+                        <th>
+                          <center>Approve</center>
+                        </th>
+                        <!-- <th>
+                          <center>Delete</center>
+                        </th> -->
+                      </tr>
+                    </thead>
+                    <tbody id="data">
+                      <!-- <tr>
+                        <td>
+                          <center><img class="img-circle" src="image/upload.png" width="40" height="40 "> </center>
+                        </td>
+                        <td>
+                          <center>Coffee Bar</center>
+                        </td>
+                        <td>
+                          <center>ราบ 11</center>
+                        </td>
+                        <td>
+                          <center>0874559332</center>
+                        </td>
+                        <td>
+                          <center>goddanny19@gmail.com</center>
+                        </td>
+                        <td>
+                          <center>รออนุมัติ</center>
+                        </td>
+                        <td>
+                          <center><img src="image/bin.png" width="60" height="40 "> </center>
+                        </td>
+
+                      </tr> -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+            <!-- /.float-right -->
+          </div>
+        </div>
+      </div>
+      <!-- /.card -->
+    </div>
+    <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </section>
+
+
+  <script>
+
+    var dataArray = []
+
+
+    function initPage() {
+
+      let firestore = firebase.firestore()
+      firestore.collection("store").where("role", "==", 'store').get()
+        .then(function (snapshot) {
+          // console.log(firestore.collection('foo').select())
+          var stringEle = ''
+          snapshot.forEach(function (docs) {
+            console.log(docs.id);
+
+            stringEle += '<tr>'
+            if (docs.data().productImgUrl !== null) {
+              stringEle += '<td><center><img src="' + docs.data().proFile + '" width="40" height="40 "> </center></td>'
+            } else {
+              stringEle += '<td><center><img src="image/upload.png" width="40" height="40 "> </center></td>'
+            }
+            stringEle += '<td><center>' + docs.data().namestore + '</center></td>'
+            stringEle += '<td><center>' + docs.data().address + '</center></td>'
+            stringEle += '<td><center>' + docs.data().phone + '</center></td>'
+            stringEle += '<td><center>' + docs.data().email + '</center></td>'
+            if (docs.data().status === 'a') {
+              stringEle += '<td><center>อนุมัติ</center></td>'
+            } else if (docs.data().status === 'p') {
+              stringEle += '<td><center>รอการอนุมัติ</center></td>'
+            } else {
+              stringEle += '<td><center>ไม่อนุมัติ</center></td>'
+            }
+            stringEle += '<td><center><img class="can-click" src="image/check.svg" width="60" height="40" onclick="ApproveStore(\'' + docs.id + '\')"> </center></td>'
+            // stringEle += '<td><center><img class="can-click" src="image/bin.png" width="60" height="40" onclick="DeleteStore(\'' + docs.id + '\')"> </center></td>'
+
+            // var child = document.createElement('<tr><td><center><img src="image/upload.png" width="40" height="40 "> </center>"');
+            // dataArray.push(docs.data())
+            console.log(docs.data());
+            stringEle += '</tr>'
+
+          })
+          document.querySelector("#data").innerHTML = stringEle
+        })
+    }
+
+    function ApproveStore(storeId) {
+      let firestore = firebase.firestore()
+      firestore.collection("store").doc(storeId).update({
+        status: 'a'
+      }).then(function () {
+        let firestore = firebase.firestore()
+        firestore.collection('accounts').doc(storeId).update({
+          status: 'a'
+        }).then(function(){
+          location.reload();
+        })
+        
+      })
+    }
+
+
+
+    function DeleteStore(storeId) {
+      let firestore = firebase.firestore()
+      var r = confirm("ต้องการลบข้อมูลร้านค้านี้หรือไม่");
+      if (r == true) {
+        firestore.collection("store").doc(storeId).delete().then(function () {
+
+          location.reload();
+        })
+      } else {
+        return false
+      }
+    }
+
+  </script>
+
+
+
+</body>
+
+</html>
